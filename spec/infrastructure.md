@@ -11,7 +11,7 @@ file:    infrastructure
 | Runtime      | `provided.al2` |
 | Language     | Go             |
 | Memory       | 1024 MB        |
-| Timeout      | 29 seconds     |
+| Timeout      | 20 seconds     |
 | Architecture | arm64          |
 ### Environment Variables
 | Variable                 | Source             | Value / Description                                              |
@@ -49,7 +49,6 @@ file:    infrastructure
 |----------|--------|---------------------------------------------------------------------|
 | `text`   | string | non-empty user question                                             |
 | `answer` | string | populated in the same write as the final successful user message    |
-| `status` | string | `"complete"` for persisted successful user messages (see W-01-W-03) |
 | `ttl`    | number | Unix epoch seconds                                                  |
 ---
 ## Config Store — SSM Parameter Store
@@ -64,8 +63,7 @@ file:    infrastructure
 > `resume`, `interests`, `pinned_prompt`, and `config/openai_model` are required runtime parameters; missing values are treated as internal errors.
 ---
 ## IAM Permissions
-| Service       | Actions                        |
-|---------------|--------------------------------|
+| Service       | Actions                                             |
+|---------------|-----------------------------------------------------|
 | DynamoDB      | `GetItem`, `PutItem`, `Query`, `TransactWriteItems` |
-| SSM           | `GetParameter`                 |
-| OpenAI (HTTP) | outbound HTTPS (no IAM action) |
+| SSM           | `GetParameter`                                      |

@@ -16,7 +16,6 @@ const (
 	defaultMaxContext    = 20
 	defaultMaxQuestion   = 300
 	maxConversationTurns = 10
-	statusComplete       = "complete"
 )
 
 type ParamGetter interface {

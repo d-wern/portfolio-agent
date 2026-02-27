@@ -194,7 +194,7 @@ func (c *Client) SaveTurn(ctx context.Context, msg domain.Message, meta domain.C
 
 // SaveCompletedTurn persists the successful user turn and updates metadata.
 func (c *Client) SaveCompletedTurn(ctx context.Context, conversationID, question, answer string, turns int) error {
-	msg := NewMessage(conversationID, question, 0, "complete")
+	msg := NewMessage(conversationID, question)
 	msg.Answer = answer
 	meta := NewConversationMeta(conversationID, turns)
 	if err := c.SaveTurn(ctx, msg, meta); err != nil {
@@ -204,15 +204,13 @@ func (c *Client) SaveCompletedTurn(ctx context.Context, conversationID, question
 }
 
 // NewMessage constructs a Message with PK/SK/TTL set from conversationID and current time.
-func NewMessage(conversationID, text string, tokens int, status string) domain.Message {
+func NewMessage(conversationID, text string) domain.Message {
 	now := time.Now().UTC()
 	return domain.Message{
 		PK:             convPK(conversationID),
 		SK:             msgSK(now),
 		ConversationID: conversationID,
 		Text:           text,
-		Tokens:         tokens,
-		Status:         status,
 		TTL:            ttlValue(),
 	}
 }
@@ -244,14 +242,12 @@ func itemToMessage(item map[string]types.AttributeValue) (domain.Message, error)
 		return domain.Message{}, err
 	}
 	answer, _ := strAttr(item, "answer") // allow empty
-	status, _ := strAttr(item, "status") // allow empty
 
 	return domain.Message{
 		PK:     pk,
 		SK:     sk,
 		Text:   text,
 		Answer: answer,
-		Status: status,
 	}, nil
 }
 
@@ -262,8 +258,6 @@ func messageItem(msg domain.Message) map[string]types.AttributeValue {
 		"conversationId": &types.AttributeValueMemberS{Value: msg.ConversationID},
 		"text":           &types.AttributeValueMemberS{Value: msg.Text},
 		"answer":         &types.AttributeValueMemberS{Value: msg.Answer},
-		"tokens":         &types.AttributeValueMemberN{Value: fmt.Sprintf("%d", msg.Tokens)},
-		"status":         &types.AttributeValueMemberS{Value: msg.Status},
 		"ttl":            &types.AttributeValueMemberN{Value: fmt.Sprintf("%d", msg.TTL)},
 	}
 }

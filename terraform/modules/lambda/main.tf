@@ -25,7 +25,7 @@ resource "aws_lambda_function" "lambda_function" {
   handler          = "bootstrap"
   filename         = "handler.zip"
   source_code_hash = filebase64sha256("handler.zip")
-  timeout          = 29
+  timeout          = 20
   memory_size      = 1024
   architectures    = ["arm64"]
 

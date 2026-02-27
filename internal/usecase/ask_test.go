@@ -302,9 +302,9 @@ func TestAsk_OpenAIErrors(t *testing.T) {
 
 func TestAsk_BuildMessages_UsesOnlyCompletedTurns(t *testing.T) {
 	history := []domain.Message{
-		{Text: "What is your background?", Answer: "I am a software engineer.", Status: "complete"},
-		{Text: "This question should not be replayed", Status: "pending"},
-		{Text: "This pending assistant text should not be replayed", Status: "pending"},
+		{Text: "What is your background?", Answer: "I am a software engineer."},
+		{Text: "This question should not be replayed"},
+		{Text: "This pending assistant text should not be replayed"},
 	}
 	var captured []domain.ChatMessage
 	llm := &capturingLLM{answer: scopedResponse(true, "ok"), captured: &captured}
@@ -320,8 +320,8 @@ func TestAsk_BuildMessages_UsesOnlyCompletedTurns(t *testing.T) {
 
 func TestAsk_BuildMessages_IncludesAllCompletedTurnsInWindow(t *testing.T) {
 	history := []domain.Message{
-		{Text: "What is your background?", Answer: "I am a software engineer.", Status: "complete"},
-		{Text: "What do you enjoy building?", Answer: "I enjoy distributed systems.", Status: "complete"},
+		{Text: "What is your background?", Answer: "I am a software engineer."},
+		{Text: "What do you enjoy building?", Answer: "I enjoy distributed systems."},
 	}
 	var captured []domain.ChatMessage
 	llm := &capturingLLM{answer: scopedResponse(true, "ok"), captured: &captured}

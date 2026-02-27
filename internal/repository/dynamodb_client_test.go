@@ -47,13 +47,12 @@ func (f *fakeDynamo) TransactWriteItems(_ context.Context, in *dynamodb.Transact
 	return &dynamodb.TransactWriteItemsOutput{}, f.txErr
 }
 
-func makeItem(pk, sk, text, answer, status string) map[string]types.AttributeValue {
+func makeItem(pk, sk, text, answer string) map[string]types.AttributeValue {
 	return map[string]types.AttributeValue{
 		"PK":     &types.AttributeValueMemberS{Value: pk},
 		"SK":     &types.AttributeValueMemberS{Value: sk},
 		"text":   &types.AttributeValueMemberS{Value: text},
 		"answer": &types.AttributeValueMemberS{Value: answer},
-		"status": &types.AttributeValueMemberS{Value: status},
 	}
 }
 
@@ -117,7 +116,7 @@ func TestGetHistory_HappyPath(t *testing.T) {
 	db := &fakeDynamo{
 		queryOut: &dynamodb.QueryOutput{
 			Items: []map[string]types.AttributeValue{
-				makeItem("CONV#abc", msgSK(time.Now()), "Hello?", "", "complete"),
+				makeItem("CONV#abc", msgSK(time.Now()), "Hello?", ""),
 			},
 		},
 	}
@@ -169,8 +168,8 @@ func TestGetHistory_ReordersDescendingResultsToChronological(t *testing.T) {
 	db := &fakeDynamo{
 		queryOut: &dynamodb.QueryOutput{
 			Items: []map[string]types.AttributeValue{
-				makeItem("CONV#abc", "MSG#2026-02-27T12:00:00Z", "newer", "", "complete"),
-				makeItem("CONV#abc", "MSG#2026-02-27T11:00:00Z", "older", "", "complete"),
+				makeItem("CONV#abc", "MSG#2026-02-27T12:00:00Z", "newer", ""),
+				makeItem("CONV#abc", "MSG#2026-02-27T11:00:00Z", "older", ""),
 			},
 		},
 	}
@@ -184,7 +183,7 @@ func TestGetHistory_ReordersDescendingResultsToChronological(t *testing.T) {
 func TestWriteMessage_HappyPath(t *testing.T) {
 	db := &fakeDynamo{}
 	c := mustNewClient(t, db)
-	msg := NewMessage("abc", "Who are you?", 4, "complete")
+	msg := NewMessage("abc", "Who are you?")
 	msg.Answer = "I am your assistant."
 	err := c.WriteMessage(context.Background(), msg)
 	require.NoError(t, err)
@@ -195,7 +194,7 @@ func TestWriteMessage_HappyPath(t *testing.T) {
 func TestWriteMessage_DynamoError(t *testing.T) {
 	db := &fakeDynamo{putErr: errors.New("ProvisionedThroughputExceededException")}
 	c := mustNewClient(t, db)
-	err := c.WriteMessage(context.Background(), NewMessage("abc", "Who are you?", 4, "complete"))
+	err := c.WriteMessage(context.Background(), NewMessage("abc", "Who are you?"))
 	require.Error(t, err)
 	require.Contains(t, err.Error(), "WriteMessage")
 }
@@ -234,7 +233,7 @@ func TestUpsertMeta_DynamoError(t *testing.T) {
 func TestSaveTurn_HappyPath(t *testing.T) {
 	db := &fakeDynamo{}
 	c := mustNewClient(t, db)
-	msg := NewMessage("abc", "Who are you?", 4, "complete")
+	msg := NewMessage("abc", "Who are you?")
 	msg.Answer = "I am your assistant."
 	meta := NewConversationMeta("abc", 2)
 
@@ -248,7 +247,7 @@ func TestSaveTurn_HappyPath(t *testing.T) {
 func TestSaveTurn_DynamoError(t *testing.T) {
 	db := &fakeDynamo{txErr: errors.New("transaction canceled")}
 	c := mustNewClient(t, db)
-	err := c.SaveTurn(context.Background(), NewMessage("abc", "Who are you?", 4, "complete"), NewConversationMeta("abc", 2))
+	err := c.SaveTurn(context.Background(), NewMessage("abc", "Who are you?"), NewConversationMeta("abc", 2))
 	require.Error(t, err)
 	require.Contains(t, err.Error(), "SaveTurn")
 }
@@ -264,7 +263,7 @@ func TestSaveTurn_MissingMessagePK(t *testing.T) {
 func TestSaveTurn_MissingMetaPK(t *testing.T) {
 	db := &fakeDynamo{}
 	c := mustNewClient(t, db)
-	err := c.SaveTurn(context.Background(), NewMessage("abc", "hi", 0, "complete"), domain.ConversationMeta{SK: skMeta})
+	err := c.SaveTurn(context.Background(), NewMessage("abc", "hi"), domain.ConversationMeta{SK: skMeta})
 	require.Error(t, err)
 	require.Contains(t, err.Error(), "meta PK")
 }
@@ -287,11 +286,10 @@ func TestSaveCompletedTurn_DynamoError(t *testing.T) {
 }
 
 func TestNewMessage_Fields(t *testing.T) {
-	msg := NewMessage("conv-1", "What is Go?", 10, "pending")
+	msg := NewMessage("conv-1", "What is Go?")
 	require.Equal(t, "CONV#conv-1", msg.PK)
 	require.Contains(t, msg.SK, "MSG#")
 	require.Equal(t, "What is Go?", msg.Text)
-	require.Equal(t, 10, msg.Tokens)
 	require.Greater(t, msg.TTL, int64(0))
 }
 

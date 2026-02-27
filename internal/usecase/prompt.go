@@ -72,9 +72,6 @@ func buildProfileContextPrompt(ctx promptContext) string {
 }
 
 func historyToPromptMessages(m domain.Message) []domain.ChatMessage {
-	if m.Status != statusComplete {
-		return nil
-	}
 	question := strings.TrimSpace(m.Text)
 	answer := strings.TrimSpace(m.Answer)
 	if question == "" || answer == "" {

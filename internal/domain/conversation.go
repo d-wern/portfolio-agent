@@ -7,8 +7,6 @@ type Message struct {
 	ConversationID string
 	Text           string
 	Answer         string
-	Tokens         int
-	Status         string
 	TTL            int64
 }
 
