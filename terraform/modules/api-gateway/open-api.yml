@@ -1,0 +1,55 @@
+openapi: 3.0.1
+info:
+  title: Portfolio Agent API
+  version: 0.0.1
+
+paths:
+  /ask:
+    options:
+      summary: CORS support
+      responses:
+        '200':
+          description: CORS preflight response
+          headers:
+            Access-Control-Allow-Origin:
+              schema:
+                type: string
+            Access-Control-Allow-Methods:
+              schema:
+                type: string
+            Access-Control-Allow-Headers:
+              schema:
+                type: string
+      x-amazon-apigateway-integration:
+        type: mock
+        requestTemplates:
+          application/json: "{\"statusCode\": 200}"
+        responses:
+          default:
+            statusCode: "200"
+            responseParameters:
+              method.response.header.Access-Control-Allow-Origin: "'*'"
+              method.response.header.Access-Control-Allow-Methods: "'OPTIONS,POST'"
+              method.response.header.Access-Control-Allow-Headers: "'Content-Type,X-Correlation-Id'"
+    post:
+      summary: Post a new question
+      operationId: newQuestion
+      description: Endpoint to post a new question to the portfolio agent.
+      responses:
+        '200':
+          description: Question successfully posted
+        '400':
+          description: Bad request, invalid input
+        '429':
+          description: Upstream rate-limited
+        '502':
+          description: Upstream dependency failure
+        '500':
+          description: Internal server error
+      x-amazon-apigateway-integration:
+        uri: arn:aws:apigateway:${region}:lambda:path/2015-03-31/functions/arn:aws:lambda:${region}:${account_id}:function:${app}-${env}-lambda-function/invocations
+        httpMethod: POST
+        type: aws_proxy
+        passthroughBehavior: WHEN_NO_MATCH
+        timeoutInMillis: 5000
+        responses: {}

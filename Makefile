@@ -1,5 +1,5 @@
 GOOS := linux
-GOARCH := amd64
+GOARCH := arm64
 
 .PHONY: all
 all: build test

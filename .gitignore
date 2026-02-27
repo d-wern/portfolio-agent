@@ -1,0 +1,7 @@
+.terraform/
+.terraform.lock.hcl
+*.tfstate
+.idea
+bootstrap
+cmd/build/
+terraform/handler.zip
