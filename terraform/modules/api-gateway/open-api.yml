@@ -51,5 +51,5 @@ paths:
         httpMethod: POST
         type: aws_proxy
         passthroughBehavior: WHEN_NO_MATCH
-        timeoutInMillis: 5000
+        timeoutInMillis: 20000
         responses: {}

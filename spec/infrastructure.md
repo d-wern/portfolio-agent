@@ -23,12 +23,20 @@ file:    infrastructure
 | `MAX_CONVERSATION_TURNS` | hardcoded          | `10`                                                             |
 ---
 ## Network — API Gateway
-| Property | Value                                            |
-|----------|--------------------------------------------------|
-| Type     | REST API (v1)                                    |
-| Proxy    | Lambda                                           |
-| Logging  | execution metrics enabled; body tracing disabled |
+| Property            | Value                                            |
+|---------------------|--------------------------------------------------|
+| Type                | REST API (v1)                                    |
+| Proxy               | Lambda                                           |
+| Integration timeout | 20 seconds                                       |
+| Logging             | execution metrics enabled; body tracing disabled |
 > Route, method, auth, and CORS are defined in `spec/interfaces/post-ask.md`.
+---
+## Outbound HTTP
+| Property              | Value                                                    |
+|-----------------------|----------------------------------------------------------|
+| OpenAI client timeout | 10 seconds                                               |
+| Timeout policy        | Must stay below the 20-second synchronous request budget |
+> External HTTP clients must leave time for request parsing, business logic, and response serialization on the synchronous `/ask` path.
 ---
 ## Storage — DynamoDB
 | Property      | Value             |
